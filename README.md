@@ -11,4 +11,5 @@ Forecasts for everything and everyone.
 A collection of complex, dynamic playgrounds against which to benchmark forecasting models.
 
 ## TODO:
-- Add tests for `lags.py`.
+- ~~Add tests for `lags.py`.~~
+- SVD for lag matrix

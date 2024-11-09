@@ -13,3 +13,4 @@ A collection of complex, dynamic playgrounds against which to benchmark forecast
 ## TODO:
 - ~~Add tests for `lags.py`.~~
 - SVD for lag matrix
+- refactor `svd_lags.py` to depend on `lags.py`

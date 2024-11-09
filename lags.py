@@ -1,55 +1,42 @@
-"""
-Take a time series and return the lags of the time series.
-
-Arguments:
-- fp: str, file path to the time series
-- lags: int, number of lags to return
-- file: str, optional, file path to save the lags
-
-Returns:
-File with the lags of the time series.
-"""
-
-import numpy as np
 import pandas as pd
 import argparse
+import os
+import sys
 
-# Parse arguments
-parser = argparse.ArgumentParser(description='Return the lags of a time series')
-parser.add_argument('--fp', type=str, required=True, help='file path to the time series')
-parser.add_argument('--header', type=int, default=0, help='header row (0 for header, None for no header)')
-parser.add_argument('--var', type=str, required=True, help='variable name of the time series')
-parser.add_argument('--lags', type=int, required=True, help='number of lags to return')
-parser.add_argument('--file', type=str, help='file path to save the lags')
-args = parser.parse_args()
+def create_lagged_series(input_csv_path, date_column, series_column, max_lag, output_csv_path):
+    try:
+        # Attempt to read the CSV file
+        df = pd.read_csv(input_csv_path, parse_dates=[date_column])
+    except FileNotFoundError:
+        print(f"Error: The file '{input_csv_path}' does not exist.")
+        sys.exit(1)
+    
+    # Sort the DataFrame by the date column to ensure lags are in order
+    df.sort_values(by=date_column, inplace=True)
+    
+    # Create lagged series columns
+    for lag in range(1, max_lag + 1):
+        df[f'{series_column}_lag_{lag}'] = df[series_column].shift(lag)
+    
+    # Drop rows with NaN values introduced by shifting
+    df.dropna(inplace=True)
+    
+    # Save the resulting DataFrame to a new CSV file
+    df.to_csv(output_csv_path, index=False)
+    print(f"Lagged data saved to {output_csv_path}")
 
-# Create save filepath
-if args.file:
-    save_path = args.file + '.csv'
-else:
-    save_path = args.fp.split('.')[0] + '_lags.csv'
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Create lagged series from a CSV file.")
+    parser.add_argument("-i", "--input_csv", required=True, help="Path to the input CSV file.")
+    parser.add_argument("-d", "--date_column", required=True, help="Name of the date column.")
+    parser.add_argument("-s", "--series_column", required=True, help="Name of the series column.")
+    parser.add_argument("-l", "--max_lag", type=int, required=True, help="Maximum number of lags to create.")
+    parser.add_argument("-o", "--output_csv", required=True, help="Path to save the output CSV file.")
 
-# Print the arguments
-print('File path:', args.fp)
-print('Header:', args.header)
-print('Variable:', args.var)
-print('Lags:', args.lags)
-print('Save file:', save_path)
+    args = parser.parse_args()
 
-# Load the time series
-ts = pd.read_csv(args.fp, header=args.header)
-if args.var not in ts.columns:
-    raise ValueError(f"Variable '{args.var}' not found in the file.")
+    if not os.path.exists(args.input_csv):
+        print(f"Error: The file '{args.input_csv}' does not exist.")
+        exit(1)
 
-ts_values = ts[args.var].values
-
-# Create the lags
-n = len(ts_values)
-lags = np.full((n, args.lags), np.nan)
-for i in range(args.lags):
-    lags[i:, i] = ts_values[:n - i]
-
-# Convert to DataFrame and save
-lagged_df = pd.DataFrame(lags, columns=[f'{args.var}_lag_{i+1}' for i in range(args.lags)])
-lagged_df.to_csv(save_path, index=False)
-print(f"Lagged time series saved to {save_path}")
+    create_lagged_series(args.input_csv, args.date_column, args.series_column, args.max_lag, args.output_csv)

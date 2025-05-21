@@ -4,12 +4,8 @@ import os
 import sys
 
 def create_lagged_series(input_csv_path, date_column, series_column, max_lag, output_csv_path):
-    try:
-        # Attempt to read the CSV file
-        df = pd.read_csv(input_csv_path, parse_dates=[date_column])
-    except FileNotFoundError:
-        print(f"Error: The file '{input_csv_path}' does not exist.")
-        sys.exit(1)
+    # Attempt to read the CSV file
+    df = pd.read_csv(input_csv_path, parse_dates=[date_column])
     
     # Sort the DataFrame by the date column to ensure lags are in order
     df.sort_values(by=date_column, inplace=True)

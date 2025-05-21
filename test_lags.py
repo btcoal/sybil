@@ -52,7 +52,5 @@ def test_create_lagged_series(setup_csv):
 
 def test_invalid_input_file():
     """Test function with an invalid input file path."""
-    with pytest.raises(SystemExit) as excinfo:
+    with pytest.raises(FileNotFoundError):
         create_lagged_series("non_existent.csv", "Date", "Close", 2, OUTPUT_CSV_PATH)
-    assert excinfo.type == SystemExit, "Expected SystemExit when input file is not found."
-    assert excinfo.value.code == 1, "Expected exit code 1 when input file is not found."

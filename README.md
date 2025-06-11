@@ -1,8 +1,8 @@
 # Sybil
 
-Created: 10/22/2024
+Created 2024-10-22
 
-Updated: 11/09/2024
+*Updated 2025-06-11*
 
 Forecasts for everything and everyone.
 
